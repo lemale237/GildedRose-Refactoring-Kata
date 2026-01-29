@@ -136,16 +136,13 @@ class TestBackstagePasses:
 class TestConjuredItem:
     """
     Tests for Conjured items which degrade in quality twice as fast as normal items.
-    NOTE: This is the NEW FEATURE to implement.
     """
 
-    @pytest.mark.xfail(reason="Conjured feature not yet implemented")
     def test_quality_degrades_twice_as_fast_before_sell_date(self):
         items = [Item("Conjured Mana Cake", 10, 20)]
         GildedRose(items).update_quality()
         assert items[0].quality == 18  # -2 instead of -1
 
-    @pytest.mark.xfail(reason="Conjured feature not yet implemented")
     def test_quality_degrades_four_times_after_sell_date(self):
         items = [Item("Conjured Mana Cake", 0, 20)]
         GildedRose(items).update_quality()

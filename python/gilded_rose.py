@@ -4,6 +4,7 @@
 AGED_BRIE = "Aged Brie"
 BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert"
 SULFURAS = "Sulfuras, Hand of Ragnaros"
+CONJURED_PREFIX = "Conjured"
 
 
 # Quality bounds
@@ -52,6 +53,16 @@ class GildedRose(object):
         """Update Sulfuras: legendary item, never changes."""
         pass  # Sulfuras never changes
 
+    def _update_conjured_item(self, item):
+        """Update Conjured item: quality degrades twice as fast as normal items."""
+        item.sell_in -= 1
+        degradation = 4 if item.sell_in < 0 else 2
+        self._decrease_quality(item, degradation)
+
+    def _is_conjured(self, item):
+        """Check if an item is a Conjured item."""
+        return item.name.startswith(CONJURED_PREFIX)
+
     def update_quality(self):
         """Update quality and sell_in for all items in inventory."""
         for item in self.items:
@@ -61,6 +72,8 @@ class GildedRose(object):
                 self._update_aged_brie(item)
             elif item.name == BACKSTAGE_PASSES:
                 self._update_backstage_pass(item)
+            elif self._is_conjured(item):
+                self._update_conjured_item(item)
             else:
                 self._update_normal_item(item)
 
