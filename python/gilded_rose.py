@@ -6,10 +6,23 @@ BACKSTAGE_PASSES = "Backstage passes to a TAFKAL80ETC concert"
 SULFURAS = "Sulfuras, Hand of Ragnaros"
 
 
+# Quality bounds
+MAX_QUALITY = 50
+MIN_QUALITY = 0
+
+
 class GildedRose(object):
 
     def __init__(self, items):
         self.items = items
+
+    def _increase_quality(self, item, amount=1):
+        """Increase item quality by amount, respecting max bound."""
+        item.quality = min(MAX_QUALITY, item.quality + amount)
+
+    def _decrease_quality(self, item, amount=1):
+        """Decrease item quality by amount, respecting min bound."""
+        item.quality = max(MIN_QUALITY, item.quality - amount)
 
     def update_quality(self):
         for item in self.items:
