@@ -24,35 +24,45 @@ class GildedRose(object):
         """Decrease item quality by amount, respecting min bound."""
         item.quality = max(MIN_QUALITY, item.quality - amount)
 
+    def _update_normal_item(self, item):
+        """Update a normal item: quality decreases, twice as fast after sell date."""
+        item.sell_in -= 1
+        degradation = 2 if item.sell_in < 0 else 1
+        self._decrease_quality(item, degradation)
+
+    def _update_aged_brie(self, item):
+        """Update Aged Brie: quality increases with age, twice as fast after sell date."""
+        item.sell_in -= 1
+        increase = 2 if item.sell_in < 0 else 1
+        self._increase_quality(item, increase)
+
+    def _update_backstage_pass(self, item):
+        """Update Backstage pass: quality increases as concert approaches, drops to 0 after."""
+        item.sell_in -= 1
+        if item.sell_in < 0:
+            item.quality = 0
+        elif item.sell_in < 5:
+            self._increase_quality(item, 3)
+        elif item.sell_in < 10:
+            self._increase_quality(item, 2)
+        else:
+            self._increase_quality(item, 1)
+
+    def _update_sulfuras(self, item):
+        """Update Sulfuras: legendary item, never changes."""
+        pass  # Sulfuras never changes
+
     def update_quality(self):
+        """Update quality and sell_in for all items in inventory."""
         for item in self.items:
-            if item.name != AGED_BRIE and item.name != BACKSTAGE_PASSES:
-                if item.quality > 0:
-                    if item.name != SULFURAS:
-                        item.quality = item.quality - 1
+            if item.name == SULFURAS:
+                self._update_sulfuras(item)
+            elif item.name == AGED_BRIE:
+                self._update_aged_brie(item)
+            elif item.name == BACKSTAGE_PASSES:
+                self._update_backstage_pass(item)
             else:
-                if item.quality < 50:
-                    item.quality = item.quality + 1
-                    if item.name == BACKSTAGE_PASSES:
-                        if item.sell_in < 11:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-                        if item.sell_in < 6:
-                            if item.quality < 50:
-                                item.quality = item.quality + 1
-            if item.name != SULFURAS:
-                item.sell_in = item.sell_in - 1
-            if item.sell_in < 0:
-                if item.name != AGED_BRIE:
-                    if item.name != BACKSTAGE_PASSES:
-                        if item.quality > 0:
-                            if item.name != SULFURAS:
-                                item.quality = item.quality - 1
-                    else:
-                        item.quality = item.quality - item.quality
-                else:
-                    if item.quality < 50:
-                        item.quality = item.quality + 1
+                self._update_normal_item(item)
 
 
 class Item:
